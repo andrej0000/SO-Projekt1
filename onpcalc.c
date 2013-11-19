@@ -45,7 +45,6 @@ int op_calc(char op, int arg1, int arg2)
 		return 0;
 	}
 	return 0;
-	
 }
 
 /* calculates one operation and puts changed expression in buf 

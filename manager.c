@@ -10,8 +10,8 @@
 #include <stdlib.h>
 
 
-const int LINE_SIZE = 1024;
-
+const int LINE_SIZE = 102400;
+const char * PATH = "DATA/";
 /*
  * Czyta z stdin string zakonczony \n badz \0
  * Do bufora trafia tenze string z koncowym nullem
@@ -19,7 +19,8 @@ const int LINE_SIZE = 1024;
 void readline(char * buf){
 	char b;
 	int i = 0;
-	while (read(0, &b, 1) == 1){
+	int r;
+	while ((r = read(0, &b, 1)) == 1){
 		if (b=='\n')
 			b = '\0';
 		buf[i] = b;
@@ -27,9 +28,11 @@ void readline(char * buf){
 		if (b=='\0')
 			return;
 	}
-
+	if (r == 0)
+		syserr("CLOSED PIPE\n");
+	if (r == -1)
+		syserr("Error in read\n");
 }
-
 
 int main(int argc, char ** argv){
 	if (argc != 4){
@@ -37,11 +40,14 @@ int main(int argc, char ** argv){
 		return 1;
 	}
 	int N = atoi(argv[1]);
-	char *datafile = argv[2];
-	char *outputfile = argv[3];
-	//int a;
-	//for (a = 0; a < argc; a++)
-	//	printf("%s\n", argv[a]);
+	char datafile[80];
+	strcpy(datafile, PATH);
+	strcpy(datafile+strlen(PATH), argv[2]);
+
+	char outputfile[80];
+	strcpy(outputfile, PATH);
+	strcpy(outputfile+strlen(PATH), argv[3]);
+
 	int tmp_pipe[2];
 	if (pipe(tmp_pipe) == -1)
 		syserr("Error in pipe");
@@ -84,9 +90,9 @@ int main(int argc, char ** argv){
 			syserr("Error in exec");
 			break;
 		default: // jestesmy managerem
-			//fprintf(stderr, "%i %i infd %i\n", tmp_pipe[0], tmp_pipe[1], infd);
 			if (close(infd) == -1)
 				syserr("Error in close infd");
+			//zapisujemy potrzebny jeszcze koniec pipe'a
 			infd = tmp_pipe[0];
 			break;
 		}
@@ -114,21 +120,22 @@ int main(int argc, char ** argv){
 	if (fgets(fbuf, LINE_SIZE, source) == NULL)
 		syserr("Wrong data file format");
 	int lines = atoi(fbuf);
-	int inside = 0;
-	int final = 0;
-	int read = 0;
-	while (final < lines){
+	int inside = 0; //ilosc wyrazen 'wpuszczonych' do pierscienia
+	int final = 0; //ilosc obliczonych wyrazen
+	int read = 0; //ilosc przeczytanych z pliku wyrazen
+
+	while (final < lines){ //jesli nie obliczylismy wszystkich
+		 //wolne miejsce w pierscieniu i zostalo cos do przeczytania
 		if (inside < N && read < lines){
-			sprintf(fbuf, "%i: ", read);
+			sprintf(fbuf, "%i: ", read + 1);
 			if (fgets(fbuf + strlen(fbuf), LINE_SIZE - strlen(fbuf), source) != NULL){
-				//fprintf(stderr, "%s", fbuf);
+				//zapewniamy konczenie sie na NULL a nie \n
+				if (fbuf[strlen(fbuf)-1] == '\n')
+					fbuf[strlen(fbuf)-1] = '\0';
+				write(1, fbuf, strlen(fbuf)+1);
+				inside++;
+				read++;
 			}
-			if (fbuf[strlen(fbuf)-1] == '\n')
-				fbuf[strlen(fbuf)-1] = '\0';
-			//fprintf(stderr, "MANAGER WYSYLAM %i str %s\n", strlen(fbuf), fbuf);
-			write(1, fbuf, strlen(fbuf)+1);
-			inside++;
-			read++;
 		}
 		else {
 			readline(buf);
@@ -143,10 +150,7 @@ int main(int argc, char ** argv){
 		}
 	}
 
-
-
-
-
+	//Wiadomosc konca
 	write(1, "TERMINATE\0", 10);
 
 	//Koniec
