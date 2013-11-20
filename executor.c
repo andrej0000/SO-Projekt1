@@ -34,7 +34,8 @@ int main(){
 		if (is_final(buf) == 0){
 			evalone(buf);
 		}
-		write(1, buf, strlen(buf)+1);
+		if(write(1, buf, strlen(buf)+1) == -1)
+			syserr("Error in write");
 	}
 
 	return 0;

@@ -51,6 +51,8 @@ int main(int argc, char ** argv){
 	int tmp_pipe[2];
 	if (pipe(tmp_pipe) == -1)
 		syserr("Error in pipe");
+
+	//Podmiana stdout w manadzerze
 	if (close(1) == -1)
 		syserr("Error in close");
 	if (dup2(tmp_pipe[1], 1) == -1)
@@ -58,6 +60,7 @@ int main(int argc, char ** argv){
 	int i = 0;
 	int infd = tmp_pipe[0];
 	for (i = 0; i < N; i++){
+		//Zamykanie nie potrzebnego pipe'a
 		if (close(tmp_pipe[1]) == -1)
 			syserr("Error in close");
 		if (pipe(tmp_pipe) == -1)
@@ -98,6 +101,7 @@ int main(int argc, char ** argv){
 		}
 	}
 
+	//Podmiana stdin w managerze
 	if (close(0) == -1)
 		syserr("Error in close manager stdin");
 	if (dup2(infd, 0) == -1)
@@ -145,13 +149,15 @@ int main(int argc, char ** argv){
 				fprintf(dest, "%s\n", buf);
 			}
 			else {
-				write(1, buf, strlen(buf)+1);
+				if(write(1, buf, strlen(buf)+1) == -1)
+					syserr("Error in write");
 			}
 		}
 	}
 
 	//Wiadomosc konca
-	write(1, "TERMINATE\0", 10);
+	if(write(1, "TERMINATE\0", 10) == -1)
+		syserr("Error in write");
 
 	//Koniec
 	for (i = 0; i < N; i++)
