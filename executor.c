@@ -1,3 +1,10 @@
+/*
+ *	Andrzej Sulecki
+ *	as320426
+ *	Systemy operacyjne
+ *	Zadanie zaliczeniowe 1
+ */
+
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>

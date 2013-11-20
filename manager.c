@@ -1,3 +1,10 @@
+/*
+ *	Andrzej Sulecki
+ *	as320426
+ *	Systemy operacyjne
+ *	Zadanie zaliczeniowe 1
+ */
+
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>

@@ -1,3 +1,10 @@
+/*
+ *	Andrzej Sulecki
+ *	as320426
+ *	Systemy operacyjne
+ *	Zadanie zaliczeniowe 1
+ */
+
 #ifndef ONPCALC_H
 #define ONPCALC_H
 
