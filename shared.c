@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include "onpcalc.h"
+#include "shared.h"
 #include "err.h"
 /*
  * Czyta z stdin string zakonczony \n badz \0

@@ -3,20 +3,17 @@ CCFLAGS = -Wall
 
 all: executor manager
 
-onpcalc.o: onpcalc.c onpcalc.h
-	$(CC) $(CCFLAGS) onpcalc.c -c -o onpcalc.o
+shared.o: shared.c shared.h
+	$(CC) $(CCFLAGS) shared.c -c -o shared.o
 
 err.o: err.h err.c
 	$(CC) $(CCFLAGS) err.c -c -o err.o
 
-executor.o: executor.c err.o onpcalc.o
-	$(CC) $(CCFLAGS) executor.c -c -o executor.o
+executor: executor.c shared.o err.o
+	$(CC) $(CCFLAGS) err.o shared.o executor.c -o executor
 
-executor: executor.o
-	$(CC) $(CCFLAGS) executor.o err.o onpcalc.o -o executor
+manager: manager.c shared.o err.o
+	$(CC) $(CCFLAGS) manager.c err.o shared.o -o manager
 
-manager.o: manager.c err.o onpcalc.o
-	$(CC) $(CCFLAGS) manager.c -c -o manager.o
-
-manager: manager.o executor
-	$(CC) $(CCFLAGS) manager.o err.o onpcalc.o -o manager
+clean:
+	rm -rf *.o manager executor
